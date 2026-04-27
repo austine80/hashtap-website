@@ -1754,22 +1754,23 @@
                 <form action="https://api.web3forms.com/submit" method="POST" class="space-y-3">
                     <!-- Web3Forms Access Key -->
                     <input type="hidden" name="access_key" value="a80b114a-2aca-49c1-b59d-ac0f4bda1c47">
-                
+                                
                     <!-- Your email address to receive submissions -->
                     <input type="hidden" name="redirect" value="https://web3forms.com/success">
                     <input type="hidden" name="from_name" value="Hashtap Solutions Newsletter">
                     <input type="hidden" name="subject" value="New Newsletter Subscription">
                     <input type="hidden" name="form_type" value="newsletter">
                     <input type="hidden" name="to" value="austineokoth80@gmail.com">
-
+                
                     <!-- Honeypot (spam protection) -->
                     <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
-                
+                                
                     <div>
                         <h4 class="font-display font-bold text-xs uppercase tracking-widest text-gray-400 mb-6">Stay
                             Updated</h4>
                         <p class="text-gray-500 text-sm mb-5">Get the latest design trends and updates.</p>
                         <div class="flex gap-2">
+                            <!-- Make sure this input is visible and has name="email" -->
                             <input type="email" name="email" id="nli" placeholder="your@email.com"
                                 class="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500 transition-colors"
                                 required />
