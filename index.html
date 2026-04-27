@@ -1855,7 +1855,6 @@
             function se(inp, msg) { const e = inp.parentElement.querySelector('.fe'); inp.style.borderColor = '#ef4444'; if (e) { e.textContent = msg; e.classList.remove('hidden'); } }
             function ce(inp) { const e = inp.parentElement.querySelector('.fe'); inp.style.borderColor = ''; if (e) e.classList.add('hidden'); }
             form.addEventListener('submit', async e => {
-                e.preventDefault();
                 const nm = document.getElementById('fn'), em = document.getElementById('fe2'), ms = document.getElementById('fmsg');
                 [nm, em, ms].forEach(ce); let ok = true;
                 if (!nm.value.trim()) { se(nm, 'Please enter your name.'); ok = false; }
