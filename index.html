@@ -1754,14 +1754,16 @@
                 <form action="https://api.web3forms.com/submit" method="POST" class="space-y-3">
                     <!-- Web3Forms Access Key -->
                     <input type="hidden" name="access_key" value="a80b114a-2aca-49c1-b59d-ac0f4bda1c47">
-
-                    <!-- Form Type -->
+                
+                    <!-- Your email address to receive submissions -->
+                    <input type="hidden" name="redirect" value="https://web3forms.com/success">
+                    <input type="hidden" name="from_name" value="Hashtap Solutions Newsletter">
                     <input type="hidden" name="subject" value="New Newsletter Subscription">
                     <input type="hidden" name="form_type" value="newsletter">
-
+                
                     <!-- Honeypot (spam protection) -->
                     <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
-
+                
                     <div>
                         <h4 class="font-display font-bold text-xs uppercase tracking-widest text-gray-400 mb-6">Stay
                             Updated</h4>
