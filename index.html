@@ -201,6 +201,35 @@
             }
         }
 
+        @keyframes waPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, .5)
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 12px rgba(37, 211, 102, 0)
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0)
+            }
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(.97)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
         .fa {
             animation: floatA 7s ease-in-out infinite
         }
@@ -572,7 +601,6 @@
             font-family: 'Syne', sans-serif
         }
 
-        /* success overlay */
         #fok {
             display: none
         }
@@ -582,7 +610,6 @@
             animation: scaleIn .5s ease both
         }
 
-        /* field error */
         .ferr {
             color: #ef4444;
             font-size: .75rem;
@@ -593,10 +620,274 @@
         .inp.invalid {
             border-color: #ef4444 !important
         }
+
+        /* ── Floating Donate Modal ── */
+        .donate-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s ease
+        }
+
+        .donate-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto
+        }
+
+        .donate-modal-box {
+            background: #fff;
+            border-radius: 24px;
+            padding: 36px 32px 32px;
+            width: 100%;
+            max-width: 380px;
+            margin: 16px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .22);
+            position: relative;
+            transform: translateY(20px) scale(.97);
+            transition: transform .35s cubic-bezier(.34, 1.56, .64, 1)
+        }
+
+        .donate-modal-overlay.open .donate-modal-box {
+            transform: translateY(0) scale(1)
+        }
+
+        .dark .donate-modal-box {
+            background: #111827
+        }
+
+        /* steps inside donate modal */
+        .donate-step {
+            display: none
+        }
+
+        .donate-step.active {
+            display: block
+        }
+
+        /* ── Floating WhatsApp ── */
+        #wa-float {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 9998;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, .45);
+            animation: waPulse 2.5s ease-in-out infinite;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform .2s ease
+        }
+
+        #wa-float:hover {
+            transform: scale(1.12);
+            animation: none;
+            box-shadow: 0 6px 28px rgba(37, 211, 102, .6)
+        }
+
+        #wa-float svg {
+            width: 28px;
+            height: 28px;
+            fill: #fff
+        }
+
+        /* tooltip on wa */
+        #wa-float::before {
+            content: 'Chat with us';
+            position: absolute;
+            left: 66px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #111;
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 6px 12px;
+            border-radius: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease
+        }
+
+        #wa-float:hover::before {
+            opacity: 1
+        }
+
+        /* STK status message */
+        .stk-status {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: .8rem;
+            font-weight: 600;
+            text-align: center
+        }
+
+        .stk-status.info {
+            display: block;
+            background: #eff6ff;
+            color: #1d4ed8
+        }
+
+        .stk-status.success {
+            display: block;
+            background: #f0fdf4;
+            color: #16a34a
+        }
+
+        .stk-status.error {
+            display: block;
+            background: #fef2f2;
+            color: #dc2626
+        }
+
+        /* phone input flag prefix */
+        .phone-wrap {
+            position: relative
+        }
+
+        .phone-flag {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: .85rem;
+            pointer-events: none;
+            user-select: none
+        }
+
+        .phone-inp {
+            padding-left: 46px !important
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- ══════════════════════════════════════════════════════
+         UNIFIED FLOATING DONATE MODAL (shared by all triggers)
+    ══════════════════════════════════════════════════════ -->
+    <div id="donate-modal" class="donate-modal-overlay" role="dialog" aria-modal="true" aria-label="Donate">
+        <div class="donate-modal-box">
+            <!-- Close -->
+            <button id="close-donate"
+                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
+                <i data-lucide="x" class="w-4 h-4 text-gray-600 dark:text-gray-300"></i>
+            </button>
+
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-400/30">
+                    <i data-lucide="heart-handshake" class="w-7 h-7 text-white"></i>
+                </div>
+                <h3 class="font-display font-bold text-xl text-gray-900 dark:text-white">Support Hashtap</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your donation helps us keep creating</p>
+            </div>
+
+            <!-- Step 1: Amount -->
+            <div id="donate-step-1" class="donate-step active">
+                <!-- Quick amounts -->
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button type="button" class="donate-quick bgt" data-amount="100">KES 100</button>
+                    <button type="button" class="donate-quick bgt" data-amount="250">KES 250</button>
+                    <button type="button" class="donate-quick bgt" data-amount="500">KES 500</button>
+                    <button type="button" class="donate-quick bgt" data-amount="1000">KES 1k</button>
+                    <button type="button" class="donate-quick bgt" data-amount="2500">KES 2.5k</button>
+                    <button type="button" class="donate-quick bgt" data-amount="custom">Custom</button>
+                </div>
+                <div id="custom-amount-wrap" class="hidden mb-4">
+                    <input type="number" id="donate-custom-amount" class="inp" placeholder="Enter amount (KES)" min="10"
+                        step="1">
+                </div>
+                <button id="donate-next"
+                    class="bs w-full py-3.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold rounded-xl hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                    Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+                <p id="step1-err" class="text-red-500 text-xs text-center mt-2 hidden">Please select or enter an amount.
+                </p>
+            </div>
+
+            <!-- Step 2: Phone + Pay -->
+            <div id="donate-step-2" class="donate-step">
+                <div class="flex items-center gap-2 mb-5">
+                    <button id="donate-back"
+                        class="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center hover:bg-gray-200 transition-colors shrink-0">
+                        <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600 dark:text-gray-300"></i>
+                    </button>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold">Donating</p>
+                        <p class="font-display font-bold text-gray-900 dark:text-white text-lg"
+                            id="confirm-amount-display">KES 0</p>
+                    </div>
+                </div>
+
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    M-Pesa Phone Number
+                </label>
+                <div class="phone-wrap mb-4">
+                    <span class="phone-flag">🇰🇪</span>
+                    <input type="tel" id="donate-phone" class="inp phone-inp" placeholder="2547XX XXX XXX" maxlength="12">
+                </div>
+                <p class="text-xs text-gray-400 mb-4 flex items-center gap-1.5">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-green-500"></i>
+                    Secure M-Pesa STK Push — check your phone for the prompt.
+                </p>
+
+                <button id="donate-pay-btn"
+                    class="bs w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                    <span id="donate-pay-txt">Pay via M-Pesa</span>
+                    <svg id="donate-pay-spin" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <i data-lucide="smartphone" class="w-5 h-5" id="donate-pay-ico"></i>
+                </button>
+
+                <div id="donate-stk-status" class="stk-status"></div>
+            </div>
+
+            <!-- Step 3: Thank you -->
+            <div id="donate-step-3" class="donate-step text-center">
+                <div
+                    class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-9 h-9 text-green-500"></i>
+                </div>
+                <h4 class="font-display font-bold text-xl text-gray-900 dark:text-white mb-2">Thank You! 🎉</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Your donation was received. We truly appreciate
+                    your support!</p>
+                <button id="donate-done"
+                    class="px-6 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-full font-semibold hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FLOATING WHATSAPP BUTTON
+    ══════════════════════════════════════════════════════ -->
+    <a id="wa-float" href="https://wa.me/254757297930" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+        </svg>
+    </a>
 
     <!-- NAV -->
     <nav id="nav" class="fixed w-full z-50 top-0 transition-all duration-500">
@@ -638,6 +929,10 @@
                     <a href="#contact"
                         class="hidden sm:flex bs px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300 text-sm items-center gap-2">Get
                         a Quote</a>
+                    <button data-donate-trigger
+                        class="bs px-6 py-2.5 bg-orange-500 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm items-center gap-2 hidden md:flex ml-2">
+                        Donate <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    </button>
                     <button id="mob-btn"
                         class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                         <i data-lucide="menu" class="w-6 h-6" id="mob-icon"></i>
@@ -658,9 +953,10 @@
                     class="ml block py-3 px-4 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-all">Testimonials</a>
                 <a href="#contact"
                     class="ml block py-3 px-4 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 font-medium transition-all">Contact</a>
-                <a href="#contact"
-                    class="block w-full text-center py-3 mt-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-full text-sm">Get
-                    a Quote</a>
+                <button data-donate-trigger
+                    class="ml w-full text-left py-3 px-4 rounded-xl text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/30 font-semibold transition-all flex items-center gap-2">
+                    <i data-lucide="heart-handshake" class="w-5 h-5"></i> Donate
+                </button>
             </div>
         </div>
     </nav>
@@ -699,7 +995,7 @@
             <p class="hs text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">We transform
                 visionary ideas into powerful brand identities and cutting-edge digital solutions that captivate,
                 convert, and conquer markets.</p>
-            <div class="hbt flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div class="hbt flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
                 <a href="#portfolio"
                     class="group bs px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-full border border-white/25 hover:bg-white hover:text-gray-900 hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2.5">
                     View Our Work <i data-lucide="arrow-right"
@@ -710,6 +1006,11 @@
                     Get a Quote <i data-lucide="sparkles"
                         class="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"></i>
                 </a>
+                <button data-donate-trigger
+                    class="group bs px-8 py-4 bg-orange-500 text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2.5">
+                    Donate <i data-lucide="heart-handshake"
+                        class="w-5 h-5 group-hover:scale-110 transition-transform duration-300"></i>
+                </button>
             </div>
             <div class="hst mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
                 <div class="p-5 rounded-2xl bg-white/8 backdrop-blur-sm border border-white/10 text-center">
@@ -1050,7 +1351,8 @@
                 <div class="pi pc group relative overflow-hidden rounded-2xl cursor-pointer card" data-cat="logos">
                     <div class="ph aspect-square bg-gradient-to-br from-blue-400 via-cyan-500 to-blue-600 flex items-center justify-center"
                         style="background-image:url('Hashtap logo.png');background-size:contain;background-repeat:no-repeat;background-position:center;">
-                        <i data-lucide="pen-tool" class="w-16 h-16 text-white/50"></i></div>
+                        <i data-lucide="pen-tool" class="w-16 h-16 text-white/50"></i>
+                    </div>
                     <div
                         class="ov absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6">
                         <span class="text-blue-400 text-xs font-bold uppercase tracking-widest mb-1">Logo Design</span>
@@ -1468,7 +1770,6 @@
         <div class="orb2 w-80 h-80 bg-blue-400/10 blur-3xl" style="bottom:0;right:0"></div>
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid lg:grid-cols-2 gap-20 items-start">
-                <!-- Left column: info -->
                 <div class="rv rvl">
                     <div
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 text-sm font-semibold mb-7">
@@ -1519,21 +1820,34 @@
                     <div>
                         <div class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-4">Follow Us</div>
                         <div class="flex gap-3">
+                            <a href="https://www.facebook.com/hashtapsolutions" target="_blank" rel="noopener"
+                                class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center hover:bg-blue-600 transition-all group"><svg
+                                    class="w-5 h-5 text-blue-600 group-hover:text-white" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M22 12a10 10 0 10-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.7-1.6 1.5V12h2.8l-.4 2.9h-2.4v7A10 10 0 0022 12z" />
+                                </svg></a>
+                            <a href="https://www.instagram.com/hashtap_solutions/" target="_blank" rel="noopener"
+                                class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center hover:bg-pink-500 transition-all group"><svg
+                                    class="w-5 h-5 text-pink-500 group-hover:text-white" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm10 2H7a3 3 0 00-3 3v10a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3zm-5 4a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6zm5.5-.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                </svg></a>
                             <a href="#"
-                                class="soc w-11 h-11 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"><i
-                                    data-lucide="facebook" class="w-5 h-5"></i></a>
+                                class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center hover:bg-black transition-all group"><svg
+                                    class="w-5 h-5 text-slate-800 group-hover:text-white" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M18.9 2H22l-6.8 7.8L23 22h-6.7l-5.2-6.7L5.3 22H2l7.3-8.4L1 2h6.9l4.7 6.1L18.9 2zm-1.2 18h1.8L7.1 3.9H5.2L17.7 20z" />
+                                </svg></a>
                             <a href="#"
-                                class="soc w-11 h-11 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-sky-500 hover:text-white transition-colors"><i
-                                    data-lucide="twitter" class="w-5 h-5"></i></a>
-                            <a href="#"
-                                class="soc w-11 h-11 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-pink-600 hover:text-white transition-colors"><i
-                                    data-lucide="instagram" class="w-5 h-5"></i></a>
-                            <a href="#"
-                                class="soc w-11 h-11 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-blue-700 hover:text-white transition-colors"><i
-                                    data-lucide="linkedin" class="w-5 h-5"></i></a>
-                            <a href="#"
-                                class="soc w-11 h-11 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-red-600 hover:text-white transition-colors"><i
-                                    data-lucide="youtube" class="w-5 h-5"></i></a>
+                                class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center hover:bg-blue-700 transition-all group"><svg
+                                    class="w-5 h-5 text-blue-700 group-hover:text-white" fill="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M4 3a2 2 0 100 4 2 2 0 000-4zm1 6H3v12h2V9zm6 0H9v12h2v-6c0-1.7 2-2 2 0v6h2v-7c0-3-3-3.1-4-1.5V9z" />
+                                </svg></a>
                         </div>
                     </div>
                 </div>
@@ -1542,8 +1856,6 @@
                 <div class="rv rvr">
                     <div
                         class="bg-white dark:bg-gray-900 rounded-2xl p-8 md:p-10 border border-gray-100 dark:border-white/5 shadow-xl relative overflow-hidden">
-
-                        <!-- Success overlay (hidden by default) -->
                         <div id="fok"
                             class="absolute inset-0 bg-white dark:bg-gray-900 rounded-2xl flex-col items-center justify-center text-center p-10 z-10">
                             <div
@@ -1560,20 +1872,12 @@
 
                         <h3 class="font-display font-bold text-2xl text-gray-900 dark:text-white mb-8">Send Us a Message
                         </h3>
-
-                        <!--
-                        CONTACT FORM — posts to Web3Forms via fetch (JSON mode).
-                        No "redirect" hidden input → Web3Forms returns {success:true}
-                        instead of redirecting, so our JS can read the result.
-                    -->
                         <form id="cform" class="space-y-5" novalidate>
                             <input type="hidden" name="access_key" value="a80b114a-2aca-49c1-b59d-ac0f4bda1c47">
                             <input type="hidden" name="subject" value="New Enquiry – Hashtap Solutions">
                             <input type="hidden" name="from_name" value="Hashtap Solutions Website">
-                            <!-- Honeypot spam protection -->
                             <input type="checkbox" name="botcheck" style="display:none" tabindex="-1"
                                 autocomplete="off">
-
                             <div class="grid sm:grid-cols-2 gap-5">
                                 <div>
                                     <label
@@ -1592,13 +1896,11 @@
                                     <p class="ferr" id="err-email"></p>
                                 </div>
                             </div>
-
                             <div>
                                 <label
                                     class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Phone</label>
                                 <input type="tel" name="phone" id="fph" placeholder="+254 7XXXXXXXX" class="inp" />
                             </div>
-
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Service
                                     Interested In</label>
@@ -1616,7 +1918,6 @@
                                     <option>Web Design &amp; Development</option>
                                 </select>
                             </div>
-
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Budget
                                     Range</label>
@@ -1630,7 +1931,6 @@
                                 </div>
                                 <input type="hidden" name="budget" id="fbg" />
                             </div>
-
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Project
                                     Details *</label>
@@ -1639,10 +1939,7 @@
                                     class="inp resize-none" required></textarea>
                                 <p class="ferr" id="err-msg"></p>
                             </div>
-
-                            <!-- General error banner -->
                             <p id="form-error" class="text-red-500 text-sm hidden"></p>
-
                             <button type="submit" id="sbtn"
                                 class="bs w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-100 transition-all duration-300 flex items-center justify-center gap-2.5">
                                 <span id="btxt">Send Message</span>
@@ -1681,20 +1978,6 @@
                     </a>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">Unmasking brands. Building digital excellence.
                         Your vision, our craft.</p>
-                    <div class="flex gap-3">
-                        <a href="https://www.facebook.com/hashtapsolutions" target="_blank"
-                            class="soc w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"><i
-                                data-lucide="facebook" class="w-4 h-4"></i></a>
-                        <a href="#"
-                            class="soc w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-sky-500 hover:text-white transition-colors"><i
-                                data-lucide="twitter" class="w-4 h-4"></i></a>
-                        <a href="https://www.instagram.com/hashtap_solutions/" target="_blank"
-                            class="soc w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-pink-600 hover:text-white transition-colors"><i
-                                data-lucide="instagram" class="w-4 h-4"></i></a>
-                        <a href="#"
-                            class="soc w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-gray-400 hover:bg-blue-700 hover:text-white transition-colors"><i
-                                data-lucide="linkedin" class="w-4 h-4"></i></a>
-                    </div>
                 </div>
                 <div>
                     <h4 class="font-display font-bold text-xs uppercase tracking-widest text-gray-400 mb-6">Services
@@ -1719,9 +2002,11 @@
                         <li><a href="#" class="fl hover:text-white">Terms of Service</a></li>
                     </ul>
                 </div>
-
-                <!-- Newsletter — posts via fetch in JSON mode, no redirect input -->
-                <div>
+                <div class="flex flex-col">
+                    <button data-donate-trigger
+                        class="bs px-7 py-3 bg-orange-500 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 text-sm items-center gap-2 flex mb-8 self-start">
+                        Donate <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    </button>
                     <h4 class="font-display font-bold text-xs uppercase tracking-widest text-gray-400 mb-6">Stay Updated
                     </h4>
                     <p class="text-gray-500 text-sm mb-5">Get the latest design trends and updates.</p>
@@ -1732,7 +2017,6 @@
                         <input type="hidden" name="message"
                             value="A new visitor subscribed to the Hashtap Solutions newsletter.">
                         <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
-
                         <div class="flex gap-2">
                             <input type="email" name="email" id="nli" placeholder="your@email.com"
                                 class="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500 transition-colors"
@@ -1764,6 +2048,7 @@
 
     <script>
         (function () {
+
             /* ── Icons ── */
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
@@ -1857,9 +2142,203 @@
             const nio = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecting) { navAs.forEach(a => { a.classList.toggle('act', a.getAttribute('href') === '#' + x.target.id); }); } }); }, { threshold: .4 });
             secs.forEach(s => nio.observe(s));
 
-            /* ══════════════════════════════════════════════════════════════════════════
-               CONTACT FORM — fetch to Web3Forms (JSON mode, no redirect)
-            ══════════════════════════════════════════════════════════════════════════ */
+            /* ══════════════════════════════════════════════════════
+               UNIFIED DONATE MODAL + M-PESA STK PUSH
+            ══════════════════════════════════════════════════════ */
+            const donateModal = document.getElementById('donate-modal');
+            const step1 = document.getElementById('donate-step-1');
+            const step2 = document.getElementById('donate-step-2');
+            const step3 = document.getElementById('donate-step-3');
+            const step1Err = document.getElementById('step1-err');
+            const confirmAmtEl = document.getElementById('confirm-amount-display');
+            const customWrap = document.getElementById('custom-amount-wrap');
+            const customInput = document.getElementById('donate-custom-amount');
+            const stkStatus = document.getElementById('donate-stk-status');
+            const payBtn = document.getElementById('donate-pay-btn');
+            const payTxt = document.getElementById('donate-pay-txt');
+            const paySpin = document.getElementById('donate-pay-spin');
+            const payIco = document.getElementById('donate-pay-ico');
+
+            let selectedAmount = null;
+            let pollTimer = null;
+
+            /* Show modal */
+            function openDonateModal() {
+                resetDonateModal();
+                donateModal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+
+            /* Hide modal */
+            function closeDonateModal() {
+                donateModal.classList.remove('open');
+                document.body.style.overflow = '';
+                if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+            }
+
+            /* Reset to step 1 */
+            function resetDonateModal() {
+                selectedAmount = null;
+                document.querySelectorAll('.donate-quick').forEach(b => b.classList.remove('sel'));
+                customWrap.classList.add('hidden');
+                customInput.value = '';
+                step1Err.classList.add('hidden');
+                document.getElementById('donate-phone').value = '';
+                setDonateStep(1);
+                setStkStatus('', '');
+            }
+
+            function setDonateStep(n) {
+                [step1, step2, step3].forEach((s, i) => {
+                    s.classList.toggle('active', i + 1 === n);
+                });
+            }
+
+            function setStkStatus(msg, type) {
+                stkStatus.textContent = msg;
+                stkStatus.className = 'stk-status' + (type ? ' ' + type : '');
+            }
+
+            function setPayBusy(busy) {
+                payBtn.disabled = busy;
+                payTxt.textContent = busy ? 'Sending STK Push…' : 'Pay via M-Pesa';
+                paySpin.classList.toggle('hidden', !busy);
+                payIco.classList.toggle('hidden', busy);
+            }
+
+            /* Quick amount buttons */
+            document.querySelectorAll('.donate-quick').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.donate-quick').forEach(b => b.classList.remove('sel'));
+                    btn.classList.add('sel');
+                    if (btn.dataset.amount === 'custom') {
+                        selectedAmount = 'custom';
+                        customWrap.classList.remove('hidden');
+                        customInput.focus();
+                    } else {
+                        selectedAmount = parseInt(btn.dataset.amount);
+                        customWrap.classList.add('hidden');
+                        customInput.value = '';
+                    }
+                    step1Err.classList.add('hidden');
+                });
+            });
+
+            /* Next button (step 1 → 2) */
+            document.getElementById('donate-next').addEventListener('click', () => {
+                let amount = selectedAmount;
+                if (amount === 'custom') {
+                    amount = parseFloat(customInput.value);
+                    if (!amount || amount < 10) {
+                        step1Err.textContent = 'Please enter a valid amount (min KES 10).';
+                        step1Err.classList.remove('hidden');
+                        return;
+                    }
+                }
+                if (!amount) {
+                    step1Err.textContent = 'Please select or enter a donation amount.';
+                    step1Err.classList.remove('hidden');
+                    return;
+                }
+                selectedAmount = amount;
+                confirmAmtEl.textContent = 'KES ' + amount.toLocaleString();
+                setDonateStep(2);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+
+            /* Back button (step 2 → 1) */
+            document.getElementById('donate-back').addEventListener('click', () => {
+                setStkStatus('', '');
+                setDonateStep(1);
+            });
+
+            /* ── STK Push ── */
+            payBtn.addEventListener('click', async () => {
+                const rawPhone = document.getElementById('donate-phone').value.trim().replace(/\s/g, '');
+                if (!rawPhone || !/^(07|01|2547|2541)\d{7,8}$/.test(rawPhone)) {
+                    setStkStatus('Enter a valid Kenyan phone number (e.g. 0712 345 678).', 'error');
+                    return;
+                }
+
+                setPayBusy(true);
+                setStkStatus('Initiating M-Pesa payment…', 'info');
+
+                try {
+                    const fd = new FormData();
+                    fd.append('phone', rawPhone);
+                    fd.append('amount', selectedAmount);
+
+                    const res = await fetch('https://donatehashtap.onrender.com/stkpush.php', { method: 'POST', body: fd });
+                    const text = await res.text();
+                    let data;
+                    try { data = JSON.parse(text); }
+                    catch { setStkStatus('Server returned an unexpected response. Please try again.', 'error'); return; }
+
+                    if (data.error) {
+                        setStkStatus('Error: ' + data.error, 'error');
+                        return;
+                    }
+
+                    if (data.ResponseCode === '0') {
+                        setStkStatus('✅ STK Push sent! Check your phone and enter your M-Pesa PIN.', 'success');
+
+                        /* Poll for completion */
+                        let attempts = 0;
+                        pollTimer = setInterval(async () => {
+                            attempts++;
+                            if (attempts > 20) {
+                                clearInterval(pollTimer); pollTimer = null;
+                                setStkStatus('Payment confirmation timed out. If debited, please contact us.', 'error');
+                                setPayBusy(false);
+                                return;
+                            }
+                            try {
+                                const r = await fetch('https://donatehashtap.onrender.com/check-payment.php?phone=' + encodeURIComponent(rawPhone));
+                                const result = await r.json();
+                                if (result.status === 'completed') {
+                                    clearInterval(pollTimer); pollTimer = null;
+                                    setPayBusy(false);
+                                    setDonateStep(3);
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                } else if (result.status === 'not_found') {
+                                    clearInterval(pollTimer); pollTimer = null;
+                                    setStkStatus('Transaction not found or cancelled. Please try again.', 'error');
+                                    setPayBusy(false);
+                                }
+                            } catch { /* network hiccup, keep polling */ }
+                        }, 3000);
+                    } else {
+                        setStkStatus('M-Pesa error: ' + (data.errorMessage || data.errorCode || 'Please try again.'), 'error');
+                    }
+                } catch {
+                    setStkStatus('Could not connect to the payment server. Check your connection.', 'error');
+                } finally {
+                    /* Don't re-enable while polling */
+                    if (!pollTimer) setPayBusy(false);
+                }
+            });
+
+            /* Done button (step 3) */
+            document.getElementById('donate-done').addEventListener('click', closeDonateModal);
+
+            /* Close button */
+            document.getElementById('close-donate').addEventListener('click', closeDonateModal);
+
+            /* Click outside to close */
+            donateModal.addEventListener('click', e => { if (e.target === donateModal) closeDonateModal(); });
+
+            /* ESC to close */
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && donateModal.classList.contains('open')) closeDonateModal(); });
+
+            /* Attach all [data-donate-trigger] buttons */
+            document.querySelectorAll('[data-donate-trigger]').forEach(btn => {
+                btn.addEventListener('click', openDonateModal);
+            });
+
+            /* ══════════════════════════════════════════════════════
+               CONTACT FORM
+            ══════════════════════════════════════════════════════ */
             const form = document.getElementById('cform');
             const fok = document.getElementById('fok');
             const sbtn = document.getElementById('sbtn');
@@ -1868,22 +2347,15 @@
             const bspin = document.getElementById('bspin');
             const formErr = document.getElementById('form-error');
 
-            /* Validation helpers */
             function showErr(fieldId, errId, msg) {
-                const inp = document.getElementById(fieldId);
-                const err = document.getElementById(errId);
-                inp.classList.add('invalid');
-                err.textContent = msg;
-                err.style.display = 'block';
+                document.getElementById(fieldId).classList.add('invalid');
+                const e = document.getElementById(errId); e.textContent = msg; e.style.display = 'block';
             }
             function clearErr(fieldId, errId) {
-                const inp = document.getElementById(fieldId);
-                const err = document.getElementById(errId);
-                inp.classList.remove('invalid');
-                err.style.display = 'none';
+                document.getElementById(fieldId).classList.remove('invalid');
+                document.getElementById(errId).style.display = 'none';
             }
 
-            /* Clear errors on input */
             document.getElementById('fn').addEventListener('input', () => clearErr('fn', 'err-name'));
             document.getElementById('femail').addEventListener('input', () => clearErr('femail', 'err-email'));
             document.getElementById('fmsg').addEventListener('input', () => clearErr('fmsg', 'err-msg'));
@@ -1897,62 +2369,32 @@
 
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
-
-                /* Validate */
                 let ok = true;
                 clearErr('fn', 'err-name'); clearErr('femail', 'err-email'); clearErr('fmsg', 'err-msg');
                 formErr.classList.add('hidden');
-
                 const name = document.getElementById('fn').value.trim();
                 const email = document.getElementById('femail').value.trim();
                 const msg = document.getElementById('fmsg').value.trim();
-
                 if (!name) { showErr('fn', 'err-name', 'Please enter your name.'); ok = false; }
                 if (!email) { showErr('femail', 'err-email', 'Email is required.'); ok = false; }
-                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    showErr('femail', 'err-email', 'Enter a valid email address.'); ok = false;
-                }
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('femail', 'err-email', 'Enter a valid email address.'); ok = false; }
                 if (!msg) { showErr('fmsg', 'err-msg', 'Please describe your project.'); ok = false; }
                 if (!ok) return;
-
                 setBusy(true);
-
                 try {
-                    /* Build payload — NO "redirect" field so Web3Forms returns JSON */
-                    const data = new FormData(form);
-
-                    const res = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        body: data,
-                        headers: { Accept: 'application/json' }
-                    });
+                    const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
                     const json = await res.json();
-
-                    if (json.success) {
-                        /* Show success overlay */
-                        fok.classList.add('show');
-                        form.reset();
-                        document.querySelectorAll('.bgt').forEach(b => b.classList.remove('sel'));
-                    } else {
-                        formErr.textContent = json.message || 'Something went wrong. Please try again.';
-                        formErr.classList.remove('hidden');
-                    }
-                } catch (err) {
-                    formErr.textContent = 'Network error — please check your connection and try again.';
-                    formErr.classList.remove('hidden');
-                } finally {
-                    setBusy(false);
-                }
+                    if (json.success) { fok.classList.add('show'); form.reset(); document.querySelectorAll('.bgt').forEach(b => b.classList.remove('sel')); }
+                    else { formErr.textContent = json.message || 'Something went wrong. Please try again.'; formErr.classList.remove('hidden'); }
+                } catch { formErr.textContent = 'Network error — please check your connection.'; formErr.classList.remove('hidden'); }
+                finally { setBusy(false); }
             });
 
-            /* "Send Another Message" button inside success overlay */
-            document.getElementById('freset').addEventListener('click', () => {
-                fok.classList.remove('show');
-            });
+            document.getElementById('freset').addEventListener('click', () => fok.classList.remove('show'));
 
-            /* ══════════════════════════════════════════════════════════════════════════
-               NEWSLETTER FORM — fetch to Web3Forms (JSON mode, no redirect)
-            ══════════════════════════════════════════════════════════════════════════ */
+            /* ══════════════════════════════════════════════════════
+               NEWSLETTER FORM
+            ══════════════════════════════════════════════════════ */
             const nlForm = document.getElementById('newsletter-form');
             const nlInp = document.getElementById('nli');
             const nlBtn = document.getElementById('nlb');
@@ -1960,46 +2402,21 @@
 
             nlForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
-
                 const email = nlInp.value.trim();
-
-                /* Validate */
                 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                     nlInp.style.borderColor = '#ef4444';
                     setTimeout(() => (nlInp.style.borderColor = ''), 1800);
                     return;
                 }
-
-                /* Loading state */
                 nlBtn.disabled = true;
                 nlBtn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>';
-
                 try {
-                    /* Build payload — NO "redirect" field */
-                    const data = new FormData(nlForm);
-
-                    const res = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        body: data,
-                        headers: { Accept: 'application/json' }
-                    });
+                    const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(nlForm), headers: { Accept: 'application/json' } });
                     const json = await res.json();
-
-                    if (json.success) {
-                        nlMsg.textContent = '✓ You\'re subscribed! Thanks for joining.';
-                        nlMsg.style.color = '#4ade80';
-                        nlMsg.classList.remove('hidden');
-                        nlInp.value = '';
-                    } else {
-                        nlMsg.textContent = json.message || 'Something went wrong. Please try again.';
-                        nlMsg.style.color = '#f87171';
-                        nlMsg.classList.remove('hidden');
-                    }
-                } catch {
-                    nlMsg.textContent = 'Network error. Please try again.';
-                    nlMsg.style.color = '#f87171';
-                    nlMsg.classList.remove('hidden');
-                } finally {
+                    if (json.success) { nlMsg.textContent = '✓ You\'re subscribed! Thanks for joining.'; nlMsg.style.color = '#4ade80'; nlMsg.classList.remove('hidden'); nlInp.value = ''; }
+                    else { nlMsg.textContent = json.message || 'Something went wrong.'; nlMsg.style.color = '#f87171'; nlMsg.classList.remove('hidden'); }
+                } catch { nlMsg.textContent = 'Network error. Please try again.'; nlMsg.style.color = '#f87171'; nlMsg.classList.remove('hidden'); }
+                finally {
                     nlBtn.disabled = false;
                     nlBtn.innerHTML = '<i data-lucide="arrow-right" class="w-5 h-5"></i>';
                     if (typeof lucide !== 'undefined') lucide.createIcons();
